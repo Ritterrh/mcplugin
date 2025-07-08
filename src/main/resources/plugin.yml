@@ -1,0 +1,4 @@
+name: lobby
+version: '1.0-SNAPSHOT'
+main: de.lobby.Lobby
+api-version: '1.21'
