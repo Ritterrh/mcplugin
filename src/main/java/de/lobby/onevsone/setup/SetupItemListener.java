@@ -6,6 +6,8 @@ import de.lobby.util.ChatUtil;
 import net.kyori.adventure.bossbar.BossBar;
 import net.kyori.adventure.text.Component;
 import net.kyori.adventure.text.format.NamedTextColor;
+import net.kyori.adventure.text.serializer.plain.PlainTextComponentSerializer;
+import net.kyori.adventure.title.Title;
 import org.bukkit.*;
 import org.bukkit.entity.Firework;
 import org.bukkit.entity.Player;
@@ -17,12 +19,12 @@ import org.bukkit.inventory.*;
 import org.bukkit.inventory.meta.FireworkMeta;
 import org.bukkit.inventory.meta.ItemMeta;
 
+import java.time.Duration;
 import java.util.*;
 
 public class SetupItemListener implements Listener {
 
-    private static final String SETUP_TITLE = "§8Duel Setup";
-    private static final Component SETUP_COMPONENT_TITLE = Component.text("Duel Setup", NamedTextColor.DARK_GRAY);
+    private static final Component SETUP_TITLE = Component.text("Duel Setup", NamedTextColor.DARK_GRAY);
     private static final String SETUP_TOOL_NAME = "§6Duel-Setup-Werkzeug";
 
     private final LobbySystemMain plugin;
@@ -37,14 +39,17 @@ public class SetupItemListener implements Listener {
 
     @EventHandler
     public void onInteract(PlayerInteractEvent e) {
-        if (e.getHand() != EquipmentSlot.HAND) return;
+        if (e.getHand() != EquipmentSlot.HAND)
+            return;
 
         Player player = e.getPlayer();
         ItemStack item = player.getInventory().getItemInMainHand();
-        if (item == null || !item.hasItemMeta()) return;
-
-        String displayName = item.getItemMeta().getDisplayName();
-        if (!SETUP_TOOL_NAME.equals(displayName)) return;
+        if (item == null || !item.hasItemMeta())
+            return;
+        Component name = item.getItemMeta().displayName();
+        if (name == null || !PlainTextComponentSerializer.plainText().serialize(name).equals(SETUP_TOOL_NAME))
+            return;
+  
 
         e.setCancelled(true);
         openSetupMenu(player);
@@ -109,35 +114,46 @@ public class SetupItemListener implements Listener {
 
     @EventHandler
     public void onInventoryClick(InventoryClickEvent e) {
-        if (!(e.getWhoClicked() instanceof Player player)) return;
-        if (!SETUP_TITLE.equals(e.getView().getTitle())) return;
+        if (!(e.getWhoClicked() instanceof Player player))
+            return;
+        if (!e.getView().title().equals(SETUP_TITLE))
+            return;
 
         e.setCancelled(true);
+
         ItemStack clicked = e.getCurrentItem();
-        if (clicked == null || !clicked.hasItemMeta()) return;
+        if (clicked == null || !clicked.hasItemMeta())
+            return;
 
-        String displayName = clicked.getItemMeta().getDisplayName();
-        Location loc = player.getLocation();
+        ItemMeta meta = clicked.getItemMeta();
+        if (!meta.hasDisplayName())
+            return;
 
-        switch (displayName) {
+        Component name = meta.displayName();
+        if (name == null)
+            return;
+
+        String plain = PlainTextComponentSerializer.plainText().serialize(name);
+
+        switch (plain) {
             case "Spawn 1 setzen" -> {
-                settings.setSpawn1(loc);
+                settings.setSpawn1(player.getLocation());
                 player.sendMessage(ChatUtil.success("Spawn 1 gespeichert!"));
             }
             case "Spawn 2 setzen" -> {
-                settings.setSpawn2(loc);
+                settings.setSpawn2(player.getLocation());
                 player.sendMessage(ChatUtil.success("Spawn 2 gespeichert!"));
             }
             case "Lobby setzen" -> {
-                settings.setLobby(loc);
+                settings.setLobby(player.getLocation());
                 player.sendMessage(ChatUtil.success("Lobby gespeichert!"));
             }
-            default -> { return; }
+            default -> {
+                return;
+            }
         }
 
         plugin.saveConfig();
-
-        // Menü aktualisieren
         Bukkit.getScheduler().runTaskLater(plugin, () -> openSetupMenu(player), 2L);
 
         if (settings.getSpawn1() != null && settings.getSpawn2() != null && settings.getLobby() != null) {
@@ -150,15 +166,10 @@ public class SetupItemListener implements Listener {
 
     private void playCompletionAnimation(Player player) {
         player.sendMessage(ChatUtil.success("Setup abgeschlossen! Du kannst nun starten."));
-        player.showTitle(net.kyori.adventure.title.Title.title(
+        player.showTitle(Title.title(
                 Component.text("✔ Setup abgeschlossen", NamedTextColor.GREEN),
                 Component.text("Du bist bereit!", NamedTextColor.GRAY),
-                net.kyori.adventure.title.Title.Times.times(
-                        java.time.Duration.ofMillis(10 * 50),
-                        java.time.Duration.ofMillis(40 * 50),
-                        java.time.Duration.ofMillis(20 * 50)
-                )
-        ));
+                Title.Times.times(Duration.ofSeconds(1), Duration.ofSeconds(2), Duration.ofSeconds(1))));
         player.playSound(player.getLocation(), Sound.UI_TOAST_CHALLENGE_COMPLETE, 1.0f, 1.0f);
 
         Firework fw = player.getWorld().spawn(player.getLocation(), Firework.class);
