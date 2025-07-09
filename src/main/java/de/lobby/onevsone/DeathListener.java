@@ -1,30 +1,41 @@
 package de.lobby.onevsone;
 
 import de.lobby.LobbySystemMain;
-import org.bukkit.Bukkit;
+import de.lobby.util.ChatUtil;
 import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
+import org.bukkit.event.EventPriority;
 import org.bukkit.event.Listener;
 import org.bukkit.event.entity.PlayerDeathEvent;
-/***
- * Die Klasse DeathListener behandelt das Ereignis, wenn ein Spieler stirbt.
- * * Sie führt die Methode handleDeath des DuelManagers aus, um den Tod des Spielers zu verarbeiten.
- * * @author Rodrigo Helwig
- * * @version 1.0
- * * @since 2025-07-09
+import org.bukkit.scheduler.BukkitRunnable;
+
+/**
+ * Behandelt den Tod eines Spielers während eines 1vs1-Matches.
  */
 public class DeathListener implements Listener {
+
     private final DuelManager duelManager;
 
     public DeathListener(DuelManager duelManager) {
         this.duelManager = duelManager;
     }
 
-    @EventHandler
+    @EventHandler(priority = EventPriority.MONITOR, ignoreCancelled = true)
     public void onPlayerDeath(PlayerDeathEvent event) {
         Player dead = event.getEntity();
-        Bukkit.getScheduler().runTaskLater(LobbySystemMain.getProvidingPlugin(LobbySystemMain.class), () -> {
-            duelManager.handleDeath(dead);
-        }, 1L);
+        Player killer = dead.getKiller();
+
+        new BukkitRunnable() {
+            @Override
+            public void run() {
+                duelManager.handleDeath(dead);
+            }
+        }.runTask(LobbySystemMain.getPlugin(LobbySystemMain.class));
+
+        if (killer != null && killer != dead) {
+            killer.sendMessage(ChatUtil.success("Du hast " + dead.getName() + " besiegt!"));
+        }
+
+        dead.sendMessage(ChatUtil.error("Du bist gestorben."));
     }
 }

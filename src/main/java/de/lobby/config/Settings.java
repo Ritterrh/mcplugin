@@ -1,71 +1,41 @@
 package de.lobby.config;
 
 import de.lobby.LobbySystemMain;
-
+import net.kyori.adventure.text.Component;
+import net.kyori.adventure.text.serializer.legacy.LegacyComponentSerializer;
 import org.bukkit.Bukkit;
-import org.bukkit.ChatColor;
 import org.bukkit.Location;
 import org.bukkit.World;
 import org.bukkit.configuration.file.FileConfiguration;
 
+import java.util.Objects;
+
 public class Settings {
+
+    private final LobbySystemMain plugin;
     private FileConfiguration config;
-    private static LobbySystemMain plugin;
 
     public Settings(LobbySystemMain plugin) {
-        Settings.plugin = plugin;
-
-        this.config = plugin.getConfig();
+        this.plugin = plugin;
         this.reloadConfig();
     }
 
-    // Lädt die Config neu
     public void reloadConfig() {
         plugin.reloadConfig();
+        this.config = plugin.getConfig();
     }
 
-    // Get den Prefix
-    public String getPrefix() {
-        return color(config.getString("general.prefix", "&7[Plugin] "));
+    public FileConfiguration getConfig() {
+        return config;
+    }
+
+    public Component getPrefix() {
+        String prefix = config.getString("general.prefix", "&7[1vs1] ");
+        return LegacyComponentSerializer.legacyAmpersand().deserialize(prefix);
     }
 
     public int getDefaultCountdown() {
-        return config.getInt("onevsone.countdown");
-
-    }
-
-    public String color(String input) {
-        return ChatColor.translateAlternateColorCodes('&', input);
-    }
-
-    public void setSpwan1(Location spawn1) {
-        plugin.getConfig().set("duel.spawn1.world", spawn1.getWorld().getName());
-        plugin.getConfig().set("duel.spawn1.x", spawn1.getX());
-        plugin.getConfig().set("duel.spawn1.y", spawn1.getY());
-        plugin.getConfig().set("duel.spawn1.z", spawn1.getZ());
-        plugin.getConfig().set("duel.spawn1.yaw", spawn1.getYaw());
-        plugin.getConfig().set("duel.spawn1.pitch", spawn1.getPitch());
-        plugin.saveConfig();
-    }
-
-    public void setSpawn2(Location spawn2) {
-        plugin.getConfig().set("duel.spawn2.world", spawn2.getWorld().getName());
-        plugin.getConfig().set("duel.spawn2.x", spawn2.getX());
-        plugin.getConfig().set("duel.spawn2.y", spawn2.getY());
-        plugin.getConfig().set("duel.spawn2.z", spawn2.getZ());
-        plugin.getConfig().set("duel.spawn2.yaw", spawn2.getYaw());
-        plugin.getConfig().set("duel.spawn2.pitch", spawn2.getPitch());
-        plugin.saveConfig();
-    }
-
-    public void setLobby(Location lobby) {
-        plugin.getConfig().set("duel.lobby.world", lobby.getWorld().getName());
-        plugin.getConfig().set("duel.lobby.x", lobby.getX());
-        plugin.getConfig().set("duel.lobby.y", lobby.getY());
-        plugin.getConfig().set("duel.lobby.z", lobby.getZ());
-        plugin.getConfig().set("duel.lobby.yaw", lobby.getYaw());
-        plugin.getConfig().set("duel.lobby.pitch", lobby.getPitch());
-        plugin.saveConfig();
+        return config.getInt("onevsone.countdown", 5);
     }
 
     public Location getSpawn1() {
@@ -80,19 +50,42 @@ public class Settings {
         return getLocation("duel.lobby");
     }
 
-    public FileConfiguration getConfig() {
-        return plugin.getConfig();
+    public void setSpawn1(Location location) {
+        setLocation("duel.spawn1", location);
     }
 
+    public void setSpawn2(Location location) {
+        setLocation("duel.spawn2", location);
+    }
+
+    public void setLobby(Location location) {
+        setLocation("duel.lobby", location);
+    }
+
+    private void setLocation(String path, Location loc) {
+        World world = Objects.requireNonNull(loc.getWorld(), "Location world cannot be null");
+        config.set(path + ".world", world.getName());
+        config.set(path + ".x", loc.getX());
+        config.set(path + ".y", loc.getY());
+        config.set(path + ".z", loc.getZ());
+        config.set(path + ".yaw", loc.getYaw());
+        config.set(path + ".pitch", loc.getPitch());
+        plugin.saveConfig();
+    }
+
+    
     private Location getLocation(String path) {
-        if (!plugin.getConfig().contains(path + ".world"))
-            return null;
-        World world = Bukkit.getWorld(plugin.getConfig().getString(path + ".world"));
-        double x = plugin.getConfig().getDouble(path + ".x");
-        double y = plugin.getConfig().getDouble(path + ".y");
-        double z = plugin.getConfig().getDouble(path + ".z");
-        float yaw = (float) plugin.getConfig().getDouble(path + ".yaw");
-        float pitch = (float) plugin.getConfig().getDouble(path + ".pitch");
+        if (!config.contains(path + ".world")) return null;
+
+        World world = Bukkit.getWorld(config.getString(path + ".world"));
+        if (world == null) return null;
+
+        double x = config.getDouble(path + ".x");
+        double y = config.getDouble(path + ".y");
+        double z = config.getDouble(path + ".z");
+        float yaw = (float) config.getDouble(path + ".yaw");
+        float pitch = (float) config.getDouble(path + ".pitch");
+
         return new Location(world, x, y, z, yaw, pitch);
     }
 }

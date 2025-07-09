@@ -5,20 +5,24 @@ api-version: '1.21'
 description: Ein einfaches 1vs1-Duell-Plugin mit Queue und Lobby
 commands:
   duel:
-    description: Tritt der 1vs1-Warteschlange bei
+    description: Tritt einem 1vs1 bei
     usage: /duel
-    permission: onevsone.duel
   leave:
-    description: Verlasse die Warteschlange für ein Duell
+    description: Verlasse die Warteschlange
     usage: /leave
-  reload:
-    description: Reloadet das Plugin
-    usage: /<command>
   setupduel:
-    description: Setup für Duel-Spawns
+    description: Gibt das Duel-Setup-Tool
     usage: /setupduel
+    permission: onevsone.setup
+  reloadsettings:
+    description: Lädt die Konfiguration neu
+    usage: /reloadsettings
+    permission: onevsone.admin
 
 permissions:
-  onevsone.duel:
-    description: Erlaubt den Beitritt zur 1vs1-Queue
-    default: true
+  onevsone.setup:
+    description: Zugriff auf Setup
+    default: op
+  onevsone.admin:
+    description: Zugriff auf Admin-Befehle
+    default: op

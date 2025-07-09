@@ -1,6 +1,7 @@
 package de.lobby.commands;
 
 import de.lobby.onevsone.DuelManager;
+import de.lobby.util.ChatUtil;
 import org.bukkit.command.Command;
 import org.bukkit.command.CommandExecutor;
 import org.bukkit.command.CommandSender;
@@ -16,7 +17,10 @@ public class DuelCommand implements CommandExecutor {
 
     @Override
     public boolean onCommand(CommandSender sender, Command cmd, String label, String[] args) {
-        if (!(sender instanceof Player player)) return false;
+        if (!(sender instanceof Player player)) {
+            sender.sendMessage(ChatUtil.error("Nur Spieler können diesen Befehl nutzen."));
+            return true;
+        }
 
         duelManager.joinQueue(player);
         return true;
