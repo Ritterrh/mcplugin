@@ -3,6 +3,7 @@ import de.lobby.commands.DuelCommand;
 import de.lobby.commands.DuelLeaveQueCommand;
 import de.lobby.commands.SetupDuelCommand;
 import de.lobby.config.Settings;
+import de.lobby.onevsone.DeathListener;
 import de.lobby.onevsone.DuelManager;
 import de.lobby.onevsone.lobby.LobbyManager;
 import de.lobby.onevsone.setup.SetupItemListener;
@@ -21,13 +22,14 @@ public class LobbySystemMain extends JavaPlugin implements Listener {
         Location spawn1 = new Location(Bukkit.getWorld("world"), 100, 64, 100);
         Location spawn2 = new Location(Bukkit.getWorld("world"), 110, 64, 100);
 
-        LobbyManager lobbyManager = new LobbyManager(lobbySpawn);
-        DuelManager duelManager = new DuelManager(lobbyManager, spawn1, spawn2);
+        LobbyManager lobbyManager = new LobbyManager(lobbySpawn, settings);
+        DuelManager duelManager = new DuelManager(lobbyManager,settings, spawn1, spawn2);
         getCommand("setupduel").setExecutor(new SetupDuelCommand());
         getCommand("duel").setExecutor(new DuelCommand(duelManager));
         getCommand("leave").setExecutor(new DuelLeaveQueCommand(duelManager));
         Bukkit.getPluginManager().registerEvents(this, this);
-        Bukkit.getPluginManager().registerEvents(new SetupItemListener(this), this);
+        Bukkit.getPluginManager().registerEvents(new SetupItemListener(this, settings), this);
+        Bukkit.getPluginManager().registerEvents( new DeathListener(duelManager), this);
 
     }
 

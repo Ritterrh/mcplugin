@@ -1,5 +1,6 @@
 package de.lobby.onevsone;
 
+import de.lobby.config.Settings;
 import de.lobby.onevsone.lobby.LobbyManager;
 import org.bukkit.GameMode;
 import org.bukkit.Location;
@@ -15,29 +16,34 @@ import org.bukkit.inventory.ItemStack;
  * 
  * Die Klase wird verwednet um ein Duell zu starten, die Spieler zu spawnen,
  * ihre Gesundheit zu setzen und sie mit einem Kit auszustatten.
+ * 
  * @author Rodrigo Helwig
  * @version 1.0
  * @since 2025-07-09
  */
-//Die Klasse die Das Match handelt
-//Die Soll Können:
-//Spieler zum Start point Spwanen lassen
-//Den Spielern max health geben
-public class DuelMatch  implements Listener {
+// Die Klasse die Das Match handelt
+// Die Soll Können:
+// Spieler zum Start point Spwanen lassen
+// Den Spielern max health geben
+public class DuelMatch implements Listener {
 
     private final Player player1;
     private final Player player2;
     private final Location spawn1;
     private final Location spawn2;
+
     private final DuelManager duelManager;
 
 
     public DuelMatch(Player p1, Player p2, Location spawn1, Location spawn2, DuelManager duelManager) {
+
         this.player1 = p1;
         this.player2 = p2;
         this.spawn1 = spawn1;
         this.spawn2 = spawn2;
+
         this.duelManager = duelManager;
+   
     }
 
     public void start() {
@@ -59,19 +65,15 @@ public class DuelMatch  implements Listener {
         player1.setGameMode(GameMode.SURVIVAL);
         player2.setGameMode(GameMode.SURVIVAL);
 
-
     }
+
     public Player getOpponent(Player player) {
-        if (player.getUniqueId().equals(player1.getUniqueId())) return player2;
-        else return player1;
+        if (player.getUniqueId().equals(player1.getUniqueId()))
+            return player2;
+        else
+            return player1;
     }
 
-    @EventHandler
-    public void onPlayerDeath(PlayerDeathEvent event) {
-        Player dead = event.getEntity();
-        duelManager.handleDeath(dead);
-        dead.getName(); // <-- macht nichts
-    }
 
 
     private void giveKit(Player player) {
