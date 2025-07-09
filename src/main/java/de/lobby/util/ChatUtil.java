@@ -5,7 +5,7 @@ import net.kyori.adventure.text.format.NamedTextColor;
 
 public class ChatUtil {
 
-    private static final Component PREFIX = Component.text("[1vs1] ", NamedTextColor.GRAY);
+    private static final Component PREFIX = Component.text("[1vs1] ", NamedTextColor.BLUE);
 
     public static Component msg(String text, NamedTextColor color) {
         return PREFIX.append(Component.text(text, color));
