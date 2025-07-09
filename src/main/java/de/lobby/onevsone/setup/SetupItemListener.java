@@ -162,8 +162,8 @@ public class SetupItemListener implements Listener {
                 Bukkit.getScheduler().runTaskLater(plugin, () ->{
                     player.closeInventory();
                     playCompletionAnimation(player);
-                    player.getInventory().removeItem(new ItemStack(Material.BLAZE_ROD));
-                    player.sendMessage(ChatUtil.success("Setup abgeschlossen! Du kannst nun starten."));
+                    removeSetupTool(player);
+                    bossBars.remove(player.getUniqueId());
                 }, 3L);
             }
         }
@@ -189,4 +189,22 @@ public class SetupItemListener implements Listener {
         meta.setPower(1);
         fw.setFireworkMeta(meta);
     }
+    private void removeSetupTool(Player player) {
+    ItemStack[] contents = player.getInventory().getContents();
+
+    for (int i = 0; i < contents.length; i++) {
+        ItemStack item = contents[i];
+        if (item == null || !item.hasItemMeta()) continue;
+
+        ItemMeta meta = item.getItemMeta();
+        if (!meta.hasDisplayName()) continue;
+
+        Component name = meta.displayName();
+        if (name != null && PlainTextComponentSerializer.plainText().serialize(name).equals("Duel-Setup-Werkzeug")) {
+            player.getInventory().setItem(i, null);
+            break;
+        }
+    }
+}
+
 }
