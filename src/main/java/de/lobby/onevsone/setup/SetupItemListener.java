@@ -18,6 +18,8 @@ import org.bukkit.event.player.PlayerInteractEvent;
 import org.bukkit.inventory.*;
 import org.bukkit.inventory.meta.FireworkMeta;
 import org.bukkit.inventory.meta.ItemMeta;
+import org.bukkit.persistence.PersistentDataContainer;
+import org.bukkit.persistence.PersistentDataType;
 
 import java.time.Duration;
 import java.util.*;
@@ -25,7 +27,7 @@ import java.util.*;
 public class SetupItemListener implements Listener {
 
     private static final Component SETUP_TITLE = Component.text("Duel Setup", NamedTextColor.DARK_GRAY);
-    private static final String SETUP_TOOL_NAME = "§6Duel-Setup-Werkzeug";
+    private static final NamespacedKey SETUP_KEY = new NamespacedKey("duel", "setup_tool");
 
     private final LobbySystemMain plugin;
     private final Settings settings;
@@ -39,17 +41,17 @@ public class SetupItemListener implements Listener {
 
     @EventHandler
     public void onInteract(PlayerInteractEvent e) {
-        if (e.getHand() != EquipmentSlot.HAND)
-            return;
+        if (e.getHand() != EquipmentSlot.HAND) return;
 
         Player player = e.getPlayer();
         ItemStack item = player.getInventory().getItemInMainHand();
-        if (item == null || !item.hasItemMeta())
-            return;
-        Component name = item.getItemMeta().displayName();
-        if (name == null || !PlainTextComponentSerializer.plainText().serialize(name).equals(SETUP_TOOL_NAME))
-            return;
-  
+        if (item == null || !item.hasItemMeta()) return;
+
+        ItemMeta meta = item.getItemMeta();
+        PersistentDataContainer container = meta.getPersistentDataContainer();
+
+        // Nur Setup-Werkzeuge reagieren lassen
+        if (!container.has(SETUP_KEY, PersistentDataType.BYTE)) return;
 
         e.setCancelled(true);
         openSetupMenu(player);
@@ -59,12 +61,12 @@ public class SetupItemListener implements Listener {
     private void openSetupMenu(Player player) {
         Inventory inv = Bukkit.createInventory(null, 27, SETUP_TITLE);
 
-        // Setup-Fortschritt (Slots 0-8)
+        // Setup-Fortschritt (Slots 0–8)
         for (int i = 0; i < 9; i++) {
             inv.setItem(i, createProgressItem(i));
         }
 
-        // Aktionen (11,13,15)
+        // Aktionen (11, 13, 15)
         inv.setItem(11, createMenuItem(Material.RED_BED, "Spawn 1 setzen"));
         inv.setItem(13, createMenuItem(Material.BLUE_BED, "Spawn 2 setzen"));
         inv.setItem(15, createMenuItem(Material.BEACON, "Lobby setzen"));
@@ -114,24 +116,19 @@ public class SetupItemListener implements Listener {
 
     @EventHandler
     public void onInventoryClick(InventoryClickEvent e) {
-        if (!(e.getWhoClicked() instanceof Player player))
-            return;
-        if (!e.getView().title().equals(SETUP_TITLE))
-            return;
+        if (!(e.getWhoClicked() instanceof Player player)) return;
+        if (!e.getView().title().equals(SETUP_TITLE)) return;
 
         e.setCancelled(true);
 
         ItemStack clicked = e.getCurrentItem();
-        if (clicked == null || !clicked.hasItemMeta())
-            return;
+        if (clicked == null || !clicked.hasItemMeta()) return;
 
         ItemMeta meta = clicked.getItemMeta();
-        if (!meta.hasDisplayName())
-            return;
+        if (!meta.hasDisplayName()) return;
 
         Component name = meta.displayName();
-        if (name == null)
-            return;
+        if (name == null) return;
 
         String plain = PlainTextComponentSerializer.plainText().serialize(name);
 
@@ -155,11 +152,11 @@ public class SetupItemListener implements Listener {
 
         plugin.saveConfig();
         Bukkit.getScheduler().runTaskLater(plugin, () -> openSetupMenu(player), 2L);
-        
+
         if (settings.getSpawn1() != null && settings.getSpawn2() != null && settings.getLobby() != null) {
             if (!completed.contains(player.getUniqueId())) {
                 completed.add(player.getUniqueId());
-                Bukkit.getScheduler().runTaskLater(plugin, () ->{
+                Bukkit.getScheduler().runTaskLater(plugin, () -> {
                     player.closeInventory();
                     playCompletionAnimation(player);
                     removeSetupTool(player);
@@ -189,22 +186,17 @@ public class SetupItemListener implements Listener {
         meta.setPower(1);
         fw.setFireworkMeta(meta);
     }
+
     private void removeSetupTool(Player player) {
-    ItemStack[] contents = player.getInventory().getContents();
+        for (int i = 0; i < player.getInventory().getSize(); i++) {
+            ItemStack item = player.getInventory().getItem(i);
+            if (item == null || !item.hasItemMeta()) continue;
 
-    for (int i = 0; i < contents.length; i++) {
-        ItemStack item = contents[i];
-        if (item == null || !item.hasItemMeta()) continue;
-
-        ItemMeta meta = item.getItemMeta();
-        if (!meta.hasDisplayName()) continue;
-
-        Component name = meta.displayName();
-        if (name != null && PlainTextComponentSerializer.plainText().serialize(name).equals("Duel-Setup-Werkzeug")) {
-            player.getInventory().setItem(i, null);
-            break;
+            ItemMeta meta = item.getItemMeta();
+            if (meta.getPersistentDataContainer().has(SETUP_KEY, PersistentDataType.BYTE)) {
+                player.getInventory().setItem(i, null);
+                return;
+            }
         }
     }
-}
-
 }
