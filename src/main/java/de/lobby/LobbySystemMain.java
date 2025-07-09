@@ -47,7 +47,7 @@ public final class LobbySystemMain extends JavaPlugin {
 
     private void registerEvents() {
         Bukkit.getPluginManager().registerEvents(new SetupItemListener(this, settings), this);
-        Bukkit.getPluginManager().registerEvents(new DeathListener(duelManager), this);
+        Bukkit.getPluginManager().registerEvents(new DeathListener(duelManager, settings), this);
     }
 
     public Settings getSettings() {
