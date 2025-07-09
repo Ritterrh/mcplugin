@@ -155,11 +155,16 @@ public class SetupItemListener implements Listener {
 
         plugin.saveConfig();
         Bukkit.getScheduler().runTaskLater(plugin, () -> openSetupMenu(player), 2L);
-
+        
         if (settings.getSpawn1() != null && settings.getSpawn2() != null && settings.getLobby() != null) {
             if (!completed.contains(player.getUniqueId())) {
                 completed.add(player.getUniqueId());
-                Bukkit.getScheduler().runTaskLater(plugin, () -> playCompletionAnimation(player), 3L);
+                Bukkit.getScheduler().runTaskLater(plugin, () ->{
+                    player.closeInventory();
+                    playCompletionAnimation(player);
+                    player.getInventory().removeItem(new ItemStack(Material.BLAZE_ROD));
+                    player.sendMessage(ChatUtil.success("Setup abgeschlossen! Du kannst nun starten."));
+                }, 3L);
             }
         }
     }
@@ -183,6 +188,5 @@ public class SetupItemListener implements Listener {
                 .build());
         meta.setPower(1);
         fw.setFireworkMeta(meta);
-        player.getInventory().removeItem(new ItemStack(Material.BLAZE_ROD)); 
     }
 }
