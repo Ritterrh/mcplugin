@@ -3,8 +3,6 @@ package de.lobby.onevsone;
 import de.lobby.LobbySystemMain;
 import de.lobby.config.Settings;
 import de.lobby.onevsone.lobby.LobbyManager;
-import org.bukkit.Bukkit;
-import org.bukkit.GameMode;
 import org.bukkit.Location;
 import org.bukkit.entity.Player;
 import org.bukkit.plugin.java.JavaPlugin;
@@ -71,7 +69,7 @@ public class DuelManager {
         DuelMatch match = activeMatches.get(dead.getUniqueId());
         if (match == null)
             return;
-        dead.setGameMode(GameMode.SPECTATOR);
+       
 
         Player opponent = match.getOpponent(dead);
 
