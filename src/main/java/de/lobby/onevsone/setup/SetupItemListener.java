@@ -183,5 +183,6 @@ public class SetupItemListener implements Listener {
                 .build());
         meta.setPower(1);
         fw.setFireworkMeta(meta);
+        player.getInventory().removeItem(new ItemStack(Material.BLAZE_ROD)); 
     }
 }
