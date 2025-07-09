@@ -1,6 +1,7 @@
 // de.lobby.listener.SetupItemListener.java
 package de.lobby.onevsone.setup;
 
+import de.lobby.LobbySystemMain;
 import org.bukkit.*;
 import org.bukkit.configuration.file.FileConfiguration;
 import org.bukkit.entity.Player;
@@ -8,13 +9,12 @@ import org.bukkit.event.*;
 import org.bukkit.event.player.PlayerInteractEvent;
 import org.bukkit.inventory.EquipmentSlot;
 import org.bukkit.inventory.ItemStack;
-import org.bukkit.plugin.java.JavaPlugin;
 
 public class SetupItemListener implements Listener {
 
-    private final JavaPlugin plugin;
+    private final LobbySystemMain plugin;
 
-    public SetupItemListener(JavaPlugin plugin) {
+    public SetupItemListener(LobbySystemMain plugin) {
         this.plugin = plugin;
     }
 

@@ -6,12 +6,12 @@ import org.bukkit.command.CommandExecutor;
 import org.bukkit.command.CommandSender;
 import org.bukkit.entity.Player;
 
-public class DuelLeaveQue  implements CommandExecutor {
+public class DuelLeaveQueCommand implements CommandExecutor {
 
     private final DuelManager duelManager;
 
 
-    public DuelLeaveQue(DuelManager duelManager) {
+    public DuelLeaveQueCommand(DuelManager duelManager) {
         this.duelManager = duelManager;
     }
 

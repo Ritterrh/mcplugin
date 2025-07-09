@@ -4,7 +4,10 @@
 *.iml
 *.ipr
 *.iws
+paper/
 
+build/
+out/
 # IntelliJ
 out/
 # mpeltonen/sbt-idea plugin
