@@ -20,6 +20,7 @@ import org.bukkit.inventory.meta.FireworkMeta;
 import org.bukkit.inventory.meta.ItemMeta;
 import org.bukkit.persistence.PersistentDataContainer;
 import org.bukkit.persistence.PersistentDataType;
+import org.slf4j.Logger;
 
 import java.time.Duration;
 import java.util.*;
@@ -149,6 +150,8 @@ public class SetupItemListener implements Listener {
                 player.sendMessage(ChatUtil.success("Spawn 2 gespeichert!"));
             }
             case "Lobby setzen" -> {
+                org.bukkit.Bukkit.getLogger().info("Lobby-Spawn wird gesetzt: " + player.getLocation());
+                org.bukkit.Bukkit.getLogger().info("Vorhandener Lobby-Spawn: " + settings.getLobby());
                 settings.setLobby(player.getLocation());
                 player.sendMessage(ChatUtil.success("Lobby gespeichert!"));
             }

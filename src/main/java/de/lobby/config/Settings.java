@@ -47,6 +47,7 @@ public class Settings {
     }
 
     public Location getLobby() {
+        org.bukkit.Bukkit.getLogger().info("Vorhandener Lobby-Spawn: " + getLocation("duel.lobby"));
         return getLocation("duel.lobby");
     }
 
@@ -73,12 +74,13 @@ public class Settings {
         plugin.saveConfig();
     }
 
-    
     private Location getLocation(String path) {
-        if (!config.contains(path + ".world")) return null;
+        if (!config.contains(path + ".world"))
+            return null;
 
         World world = Bukkit.getWorld(config.getString(path + ".world"));
-        if (world == null) return null;
+        if (world == null)
+            return null;
 
         double x = config.getDouble(path + ".x");
         double y = config.getDouble(path + ".y");

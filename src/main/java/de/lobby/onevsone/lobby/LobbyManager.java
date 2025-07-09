@@ -11,10 +11,10 @@ import org.bukkit.entity.Player;
  */
 public class LobbyManager {
 
-    private final Location lobbySpawn;
+    private Settings settings;
 
     public LobbyManager(Settings settings) {
-        this.lobbySpawn = settings.getLobby();
+        this.settings = settings;
     }
 
     /**
@@ -23,6 +23,7 @@ public class LobbyManager {
      * @param player Der Spieler, der in die Lobby teleportiert werden soll.
      */
     public void sendToLobby(Player player) {
+        Location lobbySpawn = settings.getLobby();
         if (lobbySpawn == null) {
             player.sendMessage(ChatUtil.error("Lobby-Spawn ist nicht gesetzt."));
             return;
